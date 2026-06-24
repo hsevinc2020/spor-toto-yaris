@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spor Toto Yarışması</title>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&display=swap');
+:root{--bg:#0a0a0f;--surface:#13131a;--surface2:#1c1c28;--border:#2a2a3d;--accent:#f0c040;--green:#3ecf8e;--red:#e05555;--blue:#5b8dee;--text:#e8e8f0;--muted:#7070a0;--purple:#9b6dff;--orange:#f07840;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+.header{background:var(--surface);border-bottom:2px solid var(--accent);padding:11px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;gap:8px;flex-wrap:wrap;}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:21px;letter-spacing:3px;color:var(--accent);white-space:nowrap;}
+.logo span{color:var(--text);}
+.nav{display:flex;gap:4px;flex-wrap:wrap;}
+.nb{background:transparent;border:1px solid var(--border);color:var(--muted);padding:5px 10px;border-radius:7px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:700;transition:all .2s;white-space:nowrap;}
+.nb:hover,.nb.active{background:var(--accent);border-color:var(--accent);color:#000;}
+.nb.adm{border-color:var(--purple);color:var(--purple);}
+.nb.adm:hover,.nb.adm.active{background:var(--purple);border-color:var(--purple);color:#fff;}
+.nb.trend{border-color:var(--orange);color:var(--orange);}
+.nb.trend:hover,.nb.trend.active{background:var(--orange);border-color:var(--orange);color:#fff;}
+.page{display:none;padding:16px;max-width:980px;margin:0 auto;}
+.page.active{display:block;}
+.sec-title{font-family:'Bebas Neue',sans-serif;font-size:25px;letter-spacing:2px;color:var(--accent);margin-bottom:3px;}
+.sec-sub{color:var(--muted);font-size:12px;margin-bottom:14px;}
+.sbar{background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:8px 12px;margin-bottom:12px;display:flex;align-items:center;gap:8px;font-size:11px;}
+.sdot{width:7px;height:7px;border-radius:50%;background:var(--muted);flex-shrink:0;}
+.sdot.on{background:var(--green);}.sdot.off{background:var(--red);}
+.wbar{background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:9px 13px;margin-bottom:13px;display:flex;align-items:center;gap:9px;flex-wrap:wrap;}
+.wlbl{font-size:11px;color:var(--muted);flex-shrink:0;}
+.wsel{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:5px 9px;border-radius:6px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;flex:1;min-width:150px;}
+.wsel:focus{outline:none;border-color:var(--accent);}
+.wbadge{background:rgba(240,192,64,.12);border:1px solid rgba(240,192,64,.25);color:var(--accent);padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;white-space:nowrap;}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(115px,1fr));gap:8px;margin-bottom:18px;}
+.pcard{background:var(--surface);border:2px solid var(--border);border-radius:11px;padding:14px 8px;text-align:center;cursor:pointer;transition:all .2s;position:relative;}
+.pcard:hover{border-color:var(--accent);transform:translateY(-2px);}
+.pcard.active{border-color:var(--accent);background:rgba(240,192,64,.07);}
+.pav{width:42px;height:42px;border-radius:50%;background:var(--surface2);margin:0 auto 6px;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--accent);border:2px solid var(--border);}
+.pcard.active .pav{border-color:var(--accent);}
+.pnm{font-weight:700;font-size:11px;}
+.pst{font-size:10px;color:var(--muted);margin-top:2px;}
+.pst.done{color:var(--green);}
+.pchk{position:absolute;top:5px;right:5px;width:15px;height:15px;background:var(--green);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;color:#000;font-weight:900;}
+.ptop{background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:11px 14px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.pwho{display:flex;align-items:center;gap:8px;}
+.ppav{width:38px;height:38px;border-radius:50%;background:rgba(240,192,64,.15);border:2px solid var(--accent);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:17px;color:var(--accent);}
+.pnm2{font-family:'Bebas Neue',sans-serif;font-size:19px;}
+.pacts{display:flex;align-items:center;gap:6px;}
+.dcctr{text-align:right;font-size:10px;color:var(--muted);}
+.dcctr strong{color:var(--accent);font-size:16px;font-family:'Bebas Neue',sans-serif;}
+.pdfbtn{background:transparent;border:1px solid var(--green);color:var(--green);padding:4px 9px;border-radius:6px;cursor:pointer;font-size:10px;font-weight:700;}
+.ibox{background:rgba(240,192,64,.05);border:1px solid rgba(240,192,64,.15);border-radius:8px;padding:8px 12px;margin-bottom:10px;font-size:11px;line-height:1.6;color:var(--muted);}
+.ibox strong{color:var(--accent);}
+.mrow{background:var(--surface);border:1.5px solid var(--border);border-radius:8px;margin-bottom:5px;padding:9px 11px;display:flex;align-items:center;gap:7px;}
+.mrow.picked{border-color:rgba(91,141,238,.3);}
+.mrow.doubled{border-color:var(--accent);background:rgba(240,192,64,.025);}
+.mnum{font-family:'Bebas Neue',sans-serif;font-size:15px;color:var(--muted);width:18px;text-align:center;flex-shrink:0;}
+.minf{flex:1;min-width:0;}
+.mtms{font-weight:600;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.mdat{font-size:9px;color:var(--muted);margin-top:1px;}
+.mpck{display:flex;gap:3px;flex-shrink:0;align-items:center;}
+.pbtn{width:40px;height:31px;border-radius:6px;border:1.5px solid var(--border);background:transparent;color:var(--muted);font-size:10px;font-weight:700;cursor:pointer;transition:all .12s;font-family:'DM Sans',sans-serif;}
+.pbtn:hover{border-color:var(--text);color:var(--text);}
+.pbtn.on-1{background:var(--blue);border-color:var(--blue);color:#fff;}
+.pbtn.on-x{background:#555580;border-color:#8080b0;color:#fff;}
+.pbtn.on-2{background:var(--red);border-color:var(--red);color:#fff;}
+.pbtn.dbl-1{background:var(--blue);border-color:#a0c0ff;color:#fff;box-shadow:0 0 6px rgba(91,141,238,.45);}
+.pbtn.dbl-x{background:#555580;border-color:#a0a0d0;color:#fff;box-shadow:0 0 6px rgba(120,120,180,.45);}
+.pbtn.dbl-2{background:var(--red);border-color:#ff9090;color:#fff;box-shadow:0 0 6px rgba(224,85,85,.45);}
+.dcpill{background:var(--accent);color:#000;font-size:9px;font-weight:800;border-radius:4px;padding:2px 5px;flex-shrink:0;}
+.savebtn{width:100%;padding:11px;background:var(--accent);border:none;border-radius:9px;font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:2px;color:#000;cursor:pointer;margin-top:10px;transition:all .2s;}
+.savebtn:hover{background:#ffd060;transform:translateY(-1px);}
+.savebtn:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+.rrow{background:var(--surface);border:1px solid var(--border);border-radius:8px;margin-bottom:5px;padding:9px 11px;display:flex;align-items:center;gap:8px;}
+.rbtn{width:46px;height:36px;border-radius:6px;border:1.5px solid var(--border);background:transparent;color:var(--muted);font-size:11px;font-weight:700;cursor:pointer;transition:all .12s;font-family:'DM Sans',sans-serif;pointer-events:auto !important;position:relative;z-index:10;}
+.rbtn:hover{border-color:var(--green);color:var(--green);}
+.rbtn.active{background:var(--green);border-color:var(--green);color:#000;}
+.rsum{background:var(--surface);border:1px solid var(--border);border-radius:11px;margin-top:20px;overflow:hidden;}
+.rshead{background:var(--surface2);padding:11px 15px;display:flex;align-items:center;justify-content:space-between;}
+.rshead h3{font-family:'Bebas Neue',sans-serif;font-size:19px;letter-spacing:1px;color:var(--accent);}
+.rstbl{width:100%;border-collapse:collapse;font-size:11px;}
+.rstbl th{background:rgba(42,42,61,.8);padding:6px 7px;text-align:center;color:var(--muted);font-size:9px;font-weight:700;text-transform:uppercase;}
+.rstbl th.mth{text-align:left;}
+.rstbl td{padding:5px 7px;border-top:1px solid var(--border);text-align:center;vertical-align:middle;}
+.rstbl td.mtd{text-align:left;font-weight:600;font-size:10px;}
+.chip{display:inline-block;padding:1px 5px;border-radius:3px;font-size:9px;font-weight:700;}
+.c1{background:rgba(91,141,238,.2);color:#8ab0ff;border:1px solid rgba(91,141,238,.3);}
+.cx{background:rgba(85,85,128,.3);color:#a0a0d0;border:1px solid rgba(120,120,180,.3);}
+.c2{background:rgba(224,85,85,.2);color:#ff9090;border:1px solid rgba(224,85,85,.3);}
+.cdc{background:rgba(240,192,64,.15);color:var(--accent);border:1px solid rgba(240,192,64,.3);}
+.cok{background:rgba(62,207,142,.15);color:var(--green);border:1px solid rgba(62,207,142,.3);}
+.cno{background:rgba(224,85,85,.1);color:var(--red);border:1px solid rgba(224,85,85,.2);opacity:.7;}
+.rchip{display:inline-block;padding:2px 8px;border-radius:3px;font-size:10px;font-weight:800;background:rgba(240,192,64,.1);color:var(--accent);border:1px solid rgba(240,192,64,.2);}
+.rchip.empty{background:transparent;color:var(--muted);border-color:var(--border);}
+.schip{font-family:'Bebas Neue',sans-serif;font-size:14px;color:var(--accent);}
+.pdfbtn2{background:transparent;border:1px solid var(--green);color:var(--green);padding:4px 9px;border-radius:5px;cursor:pointer;font-size:10px;font-weight:700;}
+.lbtbl{width:100%;border-collapse:collapse;background:var(--surface);border-radius:11px;overflow:hidden;margin-bottom:18px;}
+.lbtbl th{background:var(--surface2);padding:8px 11px;text-align:left;font-size:10px;font-weight:700;letter-spacing:1px;color:var(--muted);text-transform:uppercase;}
+.lbtbl td{padding:8px 11px;border-top:1px solid var(--border);font-size:12px;}
+.rball{width:23px;height:23px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:800;font-size:10px;}
+.r1{background:var(--accent);color:#000;}.r2{background:#aaa;color:#000;}.r3{background:#cd7f32;color:#fff;}.rx{background:var(--surface2);color:var(--muted);}
+.drow{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:9px 12px;margin-bottom:5px;}
+.dhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
+.dmatch{font-weight:600;font-size:12px;}
+.dres{font-family:'Bebas Neue',sans-serif;font-size:13px;padding:2px 8px;border-radius:4px;background:var(--surface2);color:var(--accent);}
+.dpicks{display:flex;gap:4px;flex-wrap:wrap;}
+.dpick{padding:2px 7px;border-radius:4px;font-size:10px;font-weight:600;border:1px solid var(--border);}
+.dpick.ok{border-color:var(--green);color:var(--green);}
+.dpick.no{border-color:var(--red);color:var(--red);opacity:.6;}
+.dpick.wait{color:var(--muted);}
+.tcard{background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:15px;margin-bottom:14px;}
+.tcard h3{font-family:'Bebas Neue',sans-serif;font-size:19px;letter-spacing:1px;color:var(--accent);margin-bottom:12px;}
+.ttbl{width:100%;border-collapse:collapse;font-size:11px;}
+.ttbl th{background:var(--surface2);padding:7px 9px;text-align:center;color:var(--muted);font-size:9px;font-weight:700;text-transform:uppercase;}
+.ttbl th.nth{text-align:left;}.ttbl td{padding:7px 9px;border-top:1px solid var(--border);text-align:center;}.ttbl td.ntd{text-align:left;font-weight:700;}
+.ws{display:inline-block;min-width:28px;padding:2px 5px;border-radius:4px;font-weight:700;font-size:11px;}
+.wshi{background:rgba(62,207,142,.12);color:var(--green);border:1px solid rgba(62,207,142,.25);}
+.wsmi{background:rgba(240,192,64,.08);color:var(--accent);border:1px solid rgba(240,192,64,.2);}
+.wslo{background:rgba(224,85,85,.08);color:var(--red);border:1px solid rgba(224,85,85,.2);}
+.wsno{color:var(--muted);}
+.brow{display:flex;align-items:center;gap:7px;margin-bottom:5px;}
+.bnm{width:85px;font-size:11px;font-weight:600;text-align:right;flex-shrink:0;}
+.btrk{flex:1;background:var(--surface2);border-radius:3px;height:18px;overflow:hidden;}
+.bfil{height:100%;border-radius:3px;display:flex;align-items:center;padding-left:7px;font-size:9px;font-weight:700;color:#000;min-width:24px;transition:width .5s;}
+.bpts{width:32px;font-family:'Bebas Neue',sans-serif;font-size:15px;color:var(--accent);}
+.sprk{display:flex;align-items:flex-end;gap:2px;height:24px;}
+.sb{border-radius:2px 2px 0 0;min-width:5px;flex:1;}
+.alock{background:var(--surface);border:1px solid var(--purple);border-radius:13px;padding:26px;text-align:center;max-width:320px;margin:32px auto;}
+.alock h2{font-family:'Bebas Neue',sans-serif;font-size:23px;color:var(--purple);margin-bottom:6px;}
+.alock p{color:var(--muted);font-size:12px;margin-bottom:16px;}
+.pinput{background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:8px 12px;color:var(--text);font-size:16px;width:100%;margin-bottom:10px;text-align:center;letter-spacing:4px;}
+.pinput:focus{outline:none;border-color:var(--purple);}
+.pinbtn{width:100%;padding:9px;background:var(--purple);border:none;border-radius:7px;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;color:#fff;cursor:pointer;}
+.asec{background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:15px;margin-bottom:14px;}
+.asec h3{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:1px;color:var(--accent);margin-bottom:11px;}
+.arow{display:flex;align-items:center;gap:6px;margin-bottom:5px;}
+.arow input{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:6px 8px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:11px;}
+.arow input:focus{outline:none;border-color:var(--accent);}
+.dinp{width:75px;flex:0 0 75px !important;}
+.icobtn{width:27px;height:27px;border-radius:5px;border:1px solid var(--border);background:transparent;cursor:pointer;font-size:13px;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+.delbtn{color:var(--red);}
+.addbtn{background:transparent;border:2px dashed var(--border);border-radius:8px;padding:8px;width:100%;color:var(--muted);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:11px;transition:all .2s;margin-bottom:10px;}
+.addbtn:hover{border-color:var(--accent);color:var(--accent);}
+.actbtn{padding:7px 14px;border-radius:7px;border:none;font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:1px;cursor:pointer;}
+.bsave{background:var(--accent);color:#000;}
+.bnewweek{background:var(--purple);color:#fff;padding:9px 18px;border:none;border-radius:8px;font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:1px;cursor:pointer;width:100%;margin-bottom:7px;}
+.prow{display:flex;align-items:center;gap:6px;margin-bottom:5px;background:var(--surface2);padding:6px 10px;border-radius:7px;}
+.prow .pnum{font-family:'Bebas Neue',sans-serif;font-size:13px;color:var(--muted);width:17px;}
+.prow input{flex:1;background:transparent;border:none;border-bottom:1px solid var(--border);color:var(--text);font-family:'DM Sans',sans-serif;font-size:12px;padding:3px 0;}
+.prow input:focus{outline:none;border-bottom-color:var(--accent);}
+.dzone{border:1px solid rgba(224,85,85,.2);border-radius:8px;padding:11px;margin-top:11px;}
+.dzone h4{color:var(--red);font-size:11px;margin-bottom:8px;}
+.rsel{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:5px 8px;border-radius:6px;font-family:'DM Sans',sans-serif;font-size:11px;margin-right:5px;margin-bottom:5px;}
+.wli{background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:9px 12px;margin-bottom:5px;display:flex;align-items:center;justify-content:space-between;}
+.wlinm{font-weight:700;font-size:12px;}
+.wlimt{font-size:10px;color:var(--muted);margin-top:1px;}
+.winput{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:7px 10px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:12px;width:100%;margin-bottom:7px;}
+.winput:focus{outline:none;border-color:var(--purple);}
+.migbox{background:rgba(155,109,255,.06);border:1px solid rgba(155,109,255,.3);border-radius:10px;padding:16px;margin-bottom:14px;}
+.migbox h4{font-family:'Bebas Neue',sans-serif;font-size:17px;color:var(--purple);margin-bottom:6px;}
+.migbox p{color:var(--muted);font-size:11px;line-height:1.6;margin-bottom:10px;}
+.migbtn{background:var(--purple);color:#fff;border:none;border-radius:8px;padding:9px 18px;font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:1px;cursor:pointer;}
+.migbtn:disabled{opacity:.5;cursor:not-allowed;}
+.miglog{background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:11px;margin-top:10px;font-size:11px;font-family:monospace;line-height:1.8;max-height:200px;overflow-y:auto;display:none;}
+.lok{color:var(--green);}.lerr{color:var(--red);}.linfo{color:var(--blue);}.lwarn{color:var(--accent);}
+.moverlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;display:flex;align-items:center;justify-content:center;padding:16px;}
+.mbox{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:22px;max-width:380px;width:100%;}
+.mbox h3{font-family:'Bebas Neue',sans-serif;font-size:19px;color:var(--accent);margin-bottom:6px;}
+.mbox p{color:var(--muted);font-size:12px;margin-bottom:14px;}
+.mbtns{display:flex;gap:6px;justify-content:flex-end;}
+.mcancel{background:transparent;border:1px solid var(--border);color:var(--muted);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:11px;font-weight:700;}
+.mconfirm{background:var(--red);border:none;color:#fff;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:11px;font-weight:700;}
+.toast{position:fixed;bottom:16px;right:16px;padding:8px 13px;border-radius:8px;font-weight:700;font-size:12px;z-index:999;transform:translateY(60px);opacity:0;transition:all .3s;max-width:220px;}
+.toast.show{transform:translateY(0);opacity:1;}
+.toast.success{background:var(--green);color:#000;}
+.toast.error{background:var(--red);color:#fff;}
+.toast.info{background:var(--blue);color:#fff;}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="logo">SPOR<span>TOTO</span></div>
+  <div class="nav">
+    <button class="nb active" onclick="goPage('home')">🏠 Tahminler</button>
+    <button class="nb" onclick="goPage('results')">📋 Sonuçlar</button>
+    <button class="nb" onclick="goPage('board')">🏆 Sıralama</button>
+    <button class="nb trend" onclick="goPage('trend')">📈 Trend</button>
+    <button class="nb adm" onclick="goPage('admin')">🔐 Admin</button>
+  </div>
+</div>
+
+<div id="page-home" class="page active">
+  <div class="sec-title">TAHMİNLERİNİ YAP</div>
+  <div class="sec-sub">Haftayı seç → İsmini tıkla → Tahminlerini gir</div>
+  <div class="sbar"><div class="sdot" id="cdot"></div><span id="ctxt">Bağlanıyor...</span></div>
+  <div class="wbar">
+    <span class="wlbl">📅 HAFTA:</span>
+    <select class="wsel" id="hw" onchange="onWC('home')"></select>
+    <span class="wbadge" id="hwb">—</span>
+  </div>
+  <div class="pgrid" id="pgrid"></div>
+  <div id="parea"></div>
+</div>
+
+<div id="page-results" class="page">
+  <div class="sec-title">MAÇ SONUÇLARI</div>
+  <div class="wbar"><span class="wlbl">📅 HAFTA:</span><select class="wsel" id="rw" onchange="onWC('results')"></select></div>
+  <div id="rlist"></div>
+  <button class="savebtn" onclick="saveResults()" style="margin-top:10px;">💾 SONUÇLARI KAYDET</button>
+  <div class="rsum" id="rsum" style="display:none">
+    <div class="rshead"><h3>📊 TAHMİN ANALİZİ</h3><button class="pdfbtn2" onclick="printSum()">🖨️ PDF</button></div>
+    <div style="overflow-x:auto"><table class="rstbl" id="rstbl"></table></div>
+  </div>
+</div>
+
+<div id="page-board" class="page">
+  <div class="sec-title">SKOR TABLOSU</div>
+  <div class="wbar"><span class="wlbl">📅 HAFTA:</span><select class="wsel" id="bw" onchange="onWC('board')"></select></div>
+  <table class="lbtbl"><thead><tr><th>#</th><th>İSİM</th><th>PUAN</th><th>DOĞRU</th><th>ÇŞ</th><th>YANLIŞ</th><th>BEKL.</th></tr></thead><tbody id="lbbody"></tbody></table>
+  <div class="sec-title" style="font-size:17px;margin-bottom:8px;">MAÇ DETAYI</div>
+  <div id="dgrid"></div>
+</div>
+
+<div id="page-trend" class="page">
+  <div class="sec-title">TREND ANALİZİ</div>
+  <div class="sec-sub">Tüm haftalar boyunca performans</div>
+  <div class="tcard"><h3>🏆 GENEL SIRALAMA</h3><div id="tov"></div></div>
+  <div class="tcard"><h3>📊 TOPLAM PUAN</h3><div id="tbars"></div></div>
+  <div class="tcard"><h3>📅 HAFTA HAFTA</h3><div style="overflow-x:auto"><table class="ttbl" id="twk"></table></div></div>
+  <div class="tcard"><h3>🎯 İSABET ORANLARI</h3><div id="tacc"></div></div>
+</div>
+
+<div id="page-admin" class="page">
+  <div id="adiv">
+    <div class="alock"><h2>🔐 ADMİN</h2><p>Şifrenizi girin.</p>
+      <input type="password" class="pinput" id="pininput" placeholder="••••" onkeydown="if(event.key==='Enter')checkPin()"/>
+      <button class="pinbtn" onclick="checkPin()">GİRİŞ YAP</button>
+    </div>
+  </div>
+  <div id="acon" style="display:none">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+      <div><div class="sec-title">ADMİN PANELİ</div><div class="sec-sub">Haftalar, maçlar ve katılımcılar</div></div>
+      <button onclick="lockAdmin()" style="background:transparent;border:1px solid var(--border);color:var(--muted);padding:5px 11px;border-radius:6px;cursor:pointer;font-size:11px;font-weight:700;">🔒 Çıkış</button>
+    </div>
+    <div class="migbox" style="background:rgba(62,207,142,.06);border-color:rgba(62,207,142,.3)">
+      <h4 style="color:var(--green)">⚽ SPOR TOTO LİSTESİNİ İÇE AKTAR</h4>
+      <p>Spor Toto fotoğrafını yükle, otomatik okusun. Veya metni doğrudan yapıştır.</p>
+      
+      <div style="display:flex;gap:8px;margin-bottom:10px;">
+        <label class="migbtn" style="background:var(--blue);cursor:pointer;display:inline-block;text-align:center;flex:1;">
+          📷 FOTO YÜKLE (OCR)
+          <input type="file" accept="image/*" id="stoto-img" style="display:none" onchange="ocrImage(event)"/>
+        </label>
+      </div>
+
+      <textarea class="winput" id="stoto-text" rows="8" placeholder="Veya listeyi buraya yapıştır...&#10;Örnek:&#10;24 NİSAN - 28 NİSAN 2026 (38. HAFTA)&#10;1. BAŞAKŞEHİR FK - KASIMPAŞA A.Ş.&#10;2. EYÜPSPOR - GAZİANTEP F.K. A.Ş." style="resize:vertical;font-family:monospace;font-size:11px;line-height:1.6;"></textarea>
+      <button class="migbtn" id="stotobtn" onclick="importStoto()" style="background:var(--green);color:#000">⚽ LİSTEYİ AKTAR</button>
+      <div class="miglog" id="stotolog"></div>
+    </div>
+
+    <div class="migbox">
+      <h4>🔄 ESKİ VERİYİ AKTAR</h4>
+      <p>Daha önce kullandığın eski tahmin verilerini buradan yeni hafta sistemine taşı. Eski veriler silinmez.</p>
+      <input class="winput" id="migwname" value="31. Hafta — 24-27 Nisan 2026"/>
+      <button class="migbtn" id="migbtn" onclick="doMig()">🚀 ESKİ VERİYİ AKTAR</button>
+      <div class="miglog" id="miglog"></div>
+    </div>
+    <div class="asec">
+      <h3>📅 HAFTA YÖNETİMİ</h3>
+      <input class="winput" id="nwname" placeholder="Yeni hafta adı (örn: 32. Hafta — 1-4 Mayıs)"/>
+      <button class="bnewweek" onclick="createWeek()">➕ YENİ HAFTA OLUŞTUR</button>
+      <div id="wlist"></div>
+    </div>
+    <div class="asec">
+      <h3>⚽ MAÇLAR</h3>
+      <div class="wbar" style="margin-bottom:11px;"><span class="wlbl">Düzenle:</span><select class="wsel" id="aw" onchange="onWC('admin')"></select></div>
+      <div id="alist"></div>
+      <button class="addbtn" onclick="addMatch()">+ Maç Ekle</button>
+      <button class="actbtn bsave" onclick="saveMatches()">💾 MAÇLARI KAYDET</button>
+    </div>
+    <div class="asec">
+      <h3>👥 KATILIMCILAR</h3>
+      <div id="personlist"></div>
+      <button class="addbtn" onclick="addPerson()">+ Katılımcı Ekle</button>
+      <button class="actbtn bsave" onclick="savePersons()">💾 KAYDET</button>
+      <div class="dzone">
+        <h4>⚠️ Kişi Tahminini Sıfırla</h4>
+        <select class="rsel" id="rweeksel"></select>
+        <select class="rsel" id="rpersonsel"><option value="">-- Kişi --</option></select>
+        <button style="background:transparent;border:1px solid var(--red);color:var(--red);padding:5px 11px;border-radius:6px;cursor:pointer;font-size:11px;font-weight:700;" onclick="resetPerson()">🗑️ Sıfırla</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="moverlay" id="modal" style="display:none">
+  <div class="mbox"><h3 id="mtitle"></h3><p id="mmsg"></p>
+    <div class="mbtns"><button class="mcancel" onclick="closeModal()">İptal</button><button class="mconfirm" id="mok">Evet</button></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, set, get, remove, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+const FB={apiKey:"AIzaSyAX06FNfiMIb4un0egC-lhfjV_0xy_UZU4",authDomain:"spor-toto-89cbc.firebaseapp.com",databaseURL:"https://spor-toto-89cbc-default-rtdb.firebaseio.com",projectId:"spor-toto-89cbc",storageBucket:"spor-toto-89cbc.firebasestorage.app",messagingSenderId:"1039492168499",appId:"1:1039492168499:web:bc1da5195305eab2be5c46"};
+const db=getDatabase(initializeApp(FB));
+const PIN='2611';
+const CLR=['#f0c040','#aaa','#cd7f32','#5b8dee','#3ecf8e','#e05555','#9b6dff','#f07840'];
+
+let S={parts:['ÖZGÜR','YAKUP','GÖKHAN','HÜSEYİN','UĞUR','H. ARKADAŞ'],weeks:{}};
+let sel={home:null,results:null,board:null,admin:null};
+let aUser=null,draft={},curPg='home',adminOK=false;
+
+const n2k=n=>{const i=S.parts.indexOf(n);return i>=0?'p'+i:null;};
+const k2n=k=>S.parts[parseInt(k.replace('p',''))]||null;
+const wlist=()=>Object.entries(S.weeks).sort((a,b)=>(a[1].created||0)-(b[1].created||0));
+const gw=k=>S.weeks[k]||null;
+
+function setConn(ok){const d=document.getElementById('cdot'),t=document.getElementById('ctxt');if(d)d.className='sdot '+(ok?'on':'off');if(t)t.textContent=ok?'🟢 Bağlı — veriler senkronize':'🔴 Bağlantı yok';}
+
+onValue(ref(db,'participants'),snap=>{const v=snap.val();if(v&&Array.isArray(v))S.parts=v;setConn(true);renderGrid();if(curPg==='admin'&&adminOK)renderAcon();},()=>setConn(false));
+
+onValue(ref(db,'weeks'),snap=>{
+  const v=snap.val()||{};
+  S.weeks={};
+  for(const wk in v){
+    S.weeks[wk]={...v[wk],predictions:{}};
+    const rp=v[wk].predictions||{};
+    for(const pk in rp){S.weeks[wk].predictions[pk]={};for(const id in rp[pk])S.weeks[wk].predictions[pk][id]=new Set(rp[pk][id]);}
+    if(!S.weeks[wk].matches)S.weeks[wk].matches=[];
+    if(!S.weeks[wk].results)S.weeks[wk].results={};
+  }
+  setConn(true);
+  const keys=wlist().map(e=>e[0]);
+  if(keys.length){const last=keys[keys.length-1];['home','results','board','admin'].forEach(p=>{if(!sel[p]||!S.weeks[sel[p]])sel[p]=last;});}
+  fillSel();renderGrid();
+  if(curPg==='results'){renderRP();renderSum();}
+  if(curPg==='board')renderBoard();
+  if(curPg==='trend')renderTrend();
+  if(curPg==='admin'&&adminOK)renderAcon();
+});
+
+function fillSel(){
+  const map={home:'hw',results:'rw',board:'bw',admin:'aw'};
+  const wl=wlist();
+  Object.entries(map).forEach(([pg,id])=>{
+    const el=document.getElementById(id);if(!el)return;
+    el.innerHTML='';
+    if(!wl.length){el.innerHTML='<option value="">— Hafta yok —</option>';return;}
+    wl.forEach(([k,w])=>{const o=document.createElement('option');o.value=k;o.textContent=w.name||k;if(k===sel[pg])o.selected=true;el.appendChild(o);});
+    if(!sel[pg]||!S.weeks[sel[pg]])sel[pg]=wl[wl.length-1][0];
+  });
+  const hb=document.getElementById('hwb');if(hb&&sel.home&&S.weeks[sel.home])hb.textContent=S.weeks[sel.home].name||sel.home;
+  const rws=document.getElementById('rweeksel');if(rws){rws.innerHTML='';wlist().forEach(([k,w])=>{const o=document.createElement('option');o.value=k;o.textContent=w.name||k;rws.appendChild(o);});}
+  const rps=document.getElementById('rpersonsel');if(rps){rps.innerHTML='<option value="">-- Kişi --</option>';S.parts.forEach(n=>rps.innerHTML+=`<option value="${n}">${n}</option>`);}
+}
+
+window.onWC=function(pg){
+  const ids={home:'hw',results:'rw',board:'bw',admin:'aw'};
+  const el=document.getElementById(ids[pg]);if(!el)return;
+  sel[pg]=el.value;
+  if(pg==='home'){aUser=null;draft={};renderGrid();document.getElementById('parea').innerHTML='';const hb=document.getElementById('hwb');if(hb&&S.weeks[sel.home])hb.textContent=S.weeks[sel.home].name||'';}
+  if(pg==='results'){const rl=document.getElementById('rlist');if(rl)delete rl.dataset.wkLoaded;renderRP();renderSum();}
+  if(pg==='board')renderBoard();
+  if(pg==='admin'&&adminOK)renderMatchList();
+};
+
+window.goPage=function(p){
+  document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.nb').forEach(x=>x.classList.remove('active'));
+  document.getElementById('page-'+p).classList.add('active');
+  const idx={home:0,results:1,board:2,trend:3,admin:4};
+  if(idx[p]!==undefined)document.querySelectorAll('.nb')[idx[p]].classList.add('active');
+  curPg=p;fillSel();
+  if(p==='home'){renderGrid();if(aUser)renderPA();}
+  if(p==='results'){renderRP();renderSum();}
+  if(p==='board')renderBoard();
+  if(p==='trend')renderTrend();
+  if(p==='admin')renderAdminPg();
+};
+
+window.checkPin=function(){if(document.getElementById('pininput').value===PIN){adminOK=true;document.getElementById('adiv').style.display='none';document.getElementById('acon').style.display='block';renderAcon();}else{showToast('Yanlış şifre!','error');document.getElementById('pininput').value='';}};
+window.lockAdmin=function(){adminOK=false;document.getElementById('adiv').style.display='block';document.getElementById('acon').style.display='none';document.getElementById('pininput').value='';};
+function renderAdminPg(){if(adminOK){document.getElementById('adiv').style.display='none';document.getElementById('acon').style.display='block';renderAcon();}else{document.getElementById('adiv').style.display='block';document.getElementById('acon').style.display='none';}}
+function renderAcon(){fillSel();renderWeekList();renderMatchList();renderPersonList();}
+
+window.ocrImage=async function(ev){
+  const file=ev.target.files[0];if(!file)return;
+  const log=(m,t)=>{const l=document.getElementById('stotolog');l.style.display='block';const d=document.createElement('div');d.className='l'+t;d.textContent=m;l.appendChild(d);l.scrollTop=l.scrollHeight;};
+  document.getElementById('stotolog').innerHTML='';
+  log('📷 Görsel okunuyor...','info');
+  try{
+    if(typeof Tesseract==='undefined'){log('❌ OCR kütüphanesi yüklenemedi. İnternet bağlantınızı kontrol edin.','err');return;}
+    const result=await Tesseract.recognize(file,'tur',{
+      logger:m=>{
+        if(m.status==='recognizing text'){
+          const pct=Math.round(m.progress*100);
+          const last=document.querySelector('#stotolog div:last-child');
+          if(last&&last.textContent.startsWith('⏳')){last.textContent='⏳ Okunuyor: %'+pct;}
+          else log('⏳ Okunuyor: %'+pct,'warn');
+        }
+      }
+    });
+    const text=result.data.text;
+    log('✅ Metin çıkarıldı, yapıştırıldı','ok');
+    document.getElementById('stoto-text').value=text;
+    log('💡 Şimdi "⚽ LİSTEYİ AKTAR" butonuna basın','info');
+  }catch(e){log('❌ OCR hatası: '+e.message,'err');}
+};
+
+window.importStoto=async function(){
+  const txt=document.getElementById('stoto-text').value.trim();
+  const btn=document.getElementById('stotobtn');
+  const log=(m,t)=>{const l=document.getElementById('stotolog');l.style.display='block';const d=document.createElement('div');d.className='l'+t;d.textContent=m;l.appendChild(d);l.scrollTop=l.scrollHeight;};
+  document.getElementById('stotolog').innerHTML='';
+  if(!txt){log('❌ Önce listeyi yapıştır!','err');return;}
+  btn.disabled=true;btn.textContent='İşleniyor...';
+  try{
+    const matches=parseStoto(txt);
+    if(!matches.length){log('❌ Hiç maç bulunamadı! Format yanlış olabilir.','err');btn.disabled=false;btn.textContent='⚽ LİSTEYİ AKTAR';return;}
+
+    // Auto-generate week name from match dates
+    const dates=matches.map(m=>m.date).filter(d=>d);
+    let weekName='Yeni Hafta';
+    if(dates.length){
+      const sorted=[...new Set(dates)].sort((a,b)=>{
+        const [da,ma]=a.split('.').map(Number);
+        const [db,mb]=b.split('.').map(Number);
+        return ma!==mb?ma-mb:da-db;
+      });
+      const first=sorted[0],last=sorted[sorted.length-1];
+      const months={'01':'Ocak','02':'Şubat','03':'Mart','04':'Nisan','05':'Mayıs','06':'Haziran','07':'Temmuz','08':'Ağustos','09':'Eylül','10':'Ekim','11':'Kasım','12':'Aralık'};
+      const [d1,m1,y1]=first.split('.');
+      const [d2,m2]=last.split('.');
+      if(first===last) weekName=`${parseInt(d1)} ${months[m1]} ${y1}`;
+      else if(m1===m2) weekName=`${parseInt(d1)}-${parseInt(d2)} ${months[m1]} ${y1}`;
+      else weekName=`${parseInt(d1)} ${months[m1]} - ${parseInt(d2)} ${months[m2]} ${y1}`;
+    }
+    log('📅 Hafta: '+weekName,'info');
+    log('✅ '+matches.length+' maç bulundu','ok');
+    matches.forEach(m=>log('  '+m.id+'. ['+m.date+' '+(m.time||'')+'] '+m.home+' - '+m.away,'info'));
+
+    const k='w'+Date.now();
+    await set(ref(db,'weeks/'+k),{name:weekName,created:Date.now(),matches,results:{},predictions:{}});
+    log('✅ Hafta oluşturuldu!','ok');
+    sel.home=k;sel.results=k;sel.board=k;sel.admin=k;
+    btn.textContent='✅ Tamamlandı';btn.style.background='#888';
+    document.getElementById('stoto-text').value='';
+    showToast(matches.length+' maç ile hafta oluşturuldu ✅','success');
+    setTimeout(()=>{btn.disabled=false;btn.textContent='⚽ LİSTEYİ AKTAR';btn.style.background='var(--green)';},2500);
+  }catch(e){log('❌ Hata: '+e.message,'err');btn.disabled=false;btn.textContent='⚽ LİSTEYİ AKTAR';}
+};
+
+// Robust parser supporting multiple Spor Toto formats
+function parseStoto(txt){
+  const matches=[];
+  const lines=txt.split(/\r?\n/).map(l=>l.trim()).filter(l=>l && l!=='-');
+
+  // FORMAT 1: Compact "1. 03.05 Pazar 20:00 - Antalyaspor - Alanyaspor"
+  // FORMAT 2: Compact "1. BAŞAKŞEHİR FK - KASIMPAŞA A.Ş."
+  // FORMAT 3: Multi-line vertical (sportoto.gov.tr table dump)
+
+  // Try compact formats line by line first
+  const usedLines=new Set();
+  lines.forEach((l,i)=>{
+    // Try: "1. DD.MM Gün HH:MM - Home - Away"
+    let m=l.match(/^(\d+)[\.\)]\s+(\d{2}\.\d{2}(?:\.\d{4})?)\s+(\S+)\s+(\d{1,2}:\d{2})\s+[-–]\s+(.+?)\s+[-–]\s+(.+)$/i);
+    if(m){
+      matches.push({id:parseInt(m[1]),date:m[2].substring(0,5),time:m[4],day:m[3],home:cleanTeam(m[5]),away:cleanTeam(m[6])});
+      usedLines.add(i);return;
+    }
+    // Try: "1. Home - Away"
+    m=l.match(/^(\d+)[\.\)]\s+(.+?)\s+[-–]\s+(.+)$/);
+    if(m && !/^\d{2}\.\d{2}/.test(m[2])){ // Ensure m[2] is not a date
+      matches.push({id:parseInt(m[1]),date:'',time:'',home:cleanTeam(m[2]),away:cleanTeam(m[3])});
+      usedLines.add(i);return;
+    }
+  });
+
+  // FORMAT 3: Multi-line vertical table
+  // Pattern: number, then "Home - Away", then date, then "-", then dayname, then time, ...
+  if(matches.length===0){
+    let i=0;
+    while(i<lines.length){
+      const line=lines[i];
+      // Look for pure number (sıra)
+      if(/^\d+$/.test(line)){
+        const id=parseInt(line);
+        // Next line should be "Home - Away"
+        const matchLine=lines[i+1];
+        if(matchLine && /\s+[-–]\s+/.test(matchLine)){
+          const teamMatch=matchLine.match(/^(.+?)\s+[-–]\s+(.+)$/);
+          if(teamMatch){
+            // Look ahead for date (DD.MM.YYYY) and time (HH:MM) and day
+            let date='',time='',day='';
+            for(let j=i+2;j<Math.min(i+8,lines.length);j++){
+              const ln=lines[j];
+              if(/^\d{2}\.\d{2}\.\d{4}$/.test(ln)){date=ln.substring(0,5);}
+              else if(/^\d{1,2}:\d{2}$/.test(ln)){time=ln;}
+              else if(/^(Pazartesi|Salı|Çarşamba|Perşembe|Cuma|Cumartesi|Pazar)$/i.test(ln)){day=ln;}
+            }
+            matches.push({id,date,time,day,home:cleanTeam(teamMatch[1]),away:cleanTeam(teamMatch[2])});
+            // Skip ahead
+            i+=2;continue;
+          }
+        }
+      }
+      i++;
+    }
+  }
+
+  // Sort by id
+  matches.sort((a,b)=>a.id-b.id);
+  return matches;
+}
+
+// Strip sponsor prefixes and clean team names
+function cleanTeam(name){
+  let n=name.trim();
+  // Strip common sponsor prefixes (lowercase or capitalized words at start)
+  const sponsors=[
+    /^Hesap\.com\s+/i,
+    /^Mısırlı\.com\.tr\s+/i,
+    /^Natura Dünyası\s+/i,
+    /^Rams\s+/i,
+    /^Zecorner\s+/i,
+    /^ikas\s+/i,
+    /^İkas\s+/i,
+    /^Tümosan\s+/i,
+    /^Corendon\s+/i,
+    /^Çaykur\s+/i,
+    /^TSG\s+/i,
+    /^VfB\s+/i,
+    /^RB\s+/i,
+    /^Olympique\s+/i,
+    /^AS\s+/i,
+    /^AC\s+/i,
+  ];
+  // Don't strip prefixes that are actual team identifiers (TSG, VfB, RB, AS, AC, FC are kept)
+  // But sponsor names like Hesap.com, Mısırlı.com.tr, Natura Dünyası, Zecorner should be removed
+  const realSponsors=[/^Hesap\.com\s+/i,/^Mısırlı\.com\.tr\s+/i,/^Natura Dünyası\s+/i,/^Rams\s+/i,/^Zecorner\s+/i,/^ikas\s+/i,/^İkas\s+/i,/^Tümosan\s+/i,/^Corendon\s+/i];
+  realSponsors.forEach(re=>n=n.replace(re,''));
+  // Remove common Turkish suffixes
+  n=n.replace(/\s+A\.?Ş\.?\s*$/i,'');
+  n=n.replace(/\s+T\.?A\.?Ş\.?\s*$/i,'');
+  n=n.replace(/F\.K\./gi,'FK');
+  n=n.replace(/F\.\s*C\./gi,'FC');
+  // Convert ALL CAPS to Title Case (Turkish-aware)
+  if(n===n.toUpperCase() && n.length>3){
+    const isTurkish=/[ĞÜŞÖÇ]|İ/.test(n);
+    n=n.split(/\s+/).map(w=>{
+      if(!w)return w;
+      if(w.length<=3 && !/[İIĞÜŞÖÇ]/.test(w))return w.toUpperCase();
+      let lower;
+      if(isTurkish){lower=w.replace(/İ/g,'i').replace(/I/g,'ı').toLowerCase();}
+      else{lower=w.toLowerCase();}
+      const first=lower[0]==='i'?(isTurkish?'İ':'I'):lower[0]==='ı'?'I':lower[0].toUpperCase();
+      return first+lower.slice(1);
+    }).join(' ');
+  }
+  return n.trim();
+}
+
+// Old function kept for backward compat
+function cleanTeamName(name){return cleanTeam(name);}
+
+window.doMig=async function(){
+  const btn=document.getElementById('migbtn');
+  const wname=document.getElementById('migwname').value.trim();
+  if(!wname){showToast('Hafta adı gir!','error');return;}
+  btn.disabled=true;btn.textContent='Taşınıyor...';
+  const log=(m,t)=>{const l=document.getElementById('miglog');l.style.display='block';const d=document.createElement('div');d.className='l'+t;d.textContent=m;l.appendChild(d);l.scrollTop=l.scrollHeight;};
+  document.getElementById('miglog').innerHTML='';
+  try{
+    log('Eski veriler okunuyor...','info');
+    const [ms,rs,ps]=await Promise.all([get(ref(db,'matches')),get(ref(db,'results')),get(ref(db,'predictions'))]);
+    const matches=ms.val(),results=rs.val()||{},preds=ps.val()||{};
+    if(!matches||!Array.isArray(matches)){log('❌ Eski maç verisi bulunamadı!','err');btn.disabled=false;btn.textContent='🚀 Tekrar Dene';return;}
+    log('✅ '+matches.length+' maç bulundu','ok');
+    log('✅ '+Object.keys(results).length+' sonuç bulundu','ok');
+    log('✅ '+Object.keys(preds).length+' kişi tahmini bulundu','ok');
+    const k='w'+Date.now();
+    await set(ref(db,'weeks/'+k),{name:wname,created:Date.now(),matches,results,predictions:preds});
+    log('✅ "'+wname+'" oluşturuldu!','ok');
+    log('Tamamlandı! Sayfayı yenileyebilirsiniz.','warn');
+    btn.textContent='✅ Tamamlandı';btn.style.background='var(--green)';btn.style.color='#000';
+    sel.home=k;sel.results=k;sel.board=k;
+    showToast('Taşıma tamamlandı ✅','success');
+  }catch(e){log('❌ Hata: '+e.message,'err');btn.disabled=false;btn.textContent='🚀 Tekrar Dene';}
+};
+
+window.createWeek=async function(){
+  const name=document.getElementById('nwname').value.trim();if(!name){showToast('Hafta adı gir!','error');return;}
+  const k='w'+Date.now();
+  try{await set(ref(db,'weeks/'+k),{name,created:Date.now(),matches:[],results:{},predictions:{}});sel.admin=k;sel.home=k;sel.results=k;sel.board=k;document.getElementById('nwname').value='';showToast('"'+name+'" oluşturuldu ✅','success');}
+  catch(e){showToast('Hata: '+e.message,'error');}
+};
+
+function renderWeekList(){
+  const l=document.getElementById('wlist');if(!l)return;
+  const wl=wlist();
+  if(!wl.length){l.innerHTML='<div style="color:var(--muted);font-size:11px;padding:6px">Henüz hafta yok.</div>';return;}
+  l.innerHTML='';
+  wl.slice().reverse().forEach(([k,w])=>{
+    const d=document.createElement('div');d.className='wli';
+    d.innerHTML=`<div><div class="wlinm">${w.name||k}</div><div class="wlimt">${(w.matches||[]).length} maç · ${Object.keys(w.results||{}).length} sonuç · ${new Date(w.created||0).toLocaleDateString('tr-TR')}</div></div>
+    <button style="background:transparent;border:1px solid var(--red);color:var(--red);padding:4px 10px;border-radius:5px;cursor:pointer;font-size:11px;font-weight:700;" onclick="delWeek('${k}','${(w.name||k).replace(/'/g,"\\'")}')">🗑️</button>`;
+    l.appendChild(d);
+  });
+}
+window.delWeek=function(k,name){confirmModal('"'+name+'" silinsin mi?','Tüm tahmin ve sonuçlar silinecek.',async()=>{await remove(ref(db,'weeks/'+k));showToast('Silindi','success');});};
+
+function renderMatchList(){
+  const l=document.getElementById('alist');if(!l)return;
+  const wk=sel.admin;const w=gw(wk);
+  if(!w){l.innerHTML='<div style="color:var(--muted);font-size:11px">Önce hafta seç.</div>';return;}
+  l.innerHTML='';
+  (w.matches||[]).forEach((m,i)=>{
+    const d=document.createElement('div');d.className='arow';
+    d.innerHTML=`<span style="color:var(--muted);font-family:'Bebas Neue';font-size:13px;width:17px">${i+1}</span>
+      <input class="dinp" value="${m.date||''}" placeholder="Tarih" id="ad-${wk}-${m.id}"/>
+      <input value="${m.home||''}" placeholder="Ev Sahibi" id="ah-${wk}-${m.id}"/>
+      <span style="color:var(--muted);font-size:9px;flex-shrink:0">—</span>
+      <input value="${m.away||''}" placeholder="Deplasman" id="aa-${wk}-${m.id}"/>
+      <button class="icobtn delbtn" onclick="delMatch(${m.id})">×</button>`;
+    l.appendChild(d);
+  });
+}
+window.addMatch=function(){const wk=sel.admin;const w=gw(wk);if(!w)return;const id=Math.max(...(w.matches||[]).map(m=>m.id),0)+1;w.matches=[...(w.matches||[]),{id,date:'',home:'',away:''}];renderMatchList();};
+window.delMatch=function(id){const wk=sel.admin;const w=gw(wk);if(!w)return;w.matches=(w.matches||[]).filter(m=>m.id!==id);renderMatchList();};
+window.saveMatches=async function(){
+  const wk=sel.admin;const w=gw(wk);if(!w)return;
+  const upd=(w.matches||[]).map(m=>({id:m.id,date:document.getElementById('ad-'+wk+'-'+m.id)?.value||m.date,home:document.getElementById('ah-'+wk+'-'+m.id)?.value||m.home,away:document.getElementById('aa-'+wk+'-'+m.id)?.value||m.away}));
+  try{await set(ref(db,'weeks/'+wk+'/matches'),upd);showToast('Maçlar kaydedildi ✅','success');}catch(e){showToast('Hata: '+e.message,'error');}
+};
+
+function renderPersonList(){
+  const l=document.getElementById('personlist');if(!l)return;l.innerHTML='';
+  S.parts.forEach((n,i)=>{const d=document.createElement('div');d.className='prow';d.innerHTML=`<div class="pnum">${i+1}</div><input value="${n}" id="pn-${i}"/><button class="icobtn delbtn" onclick="delPerson(${i})">×</button>`;l.appendChild(d);});
+}
+window.addPerson=function(){S.parts.push('Yeni');renderPersonList();};
+window.delPerson=function(i){confirmModal(S.parts[i]+' silinsin mi?','Tüm haftalardaki tahminleri silinecek.',async()=>{const k='p'+i;S.parts.splice(i,1);for(const wk in S.weeks)await remove(ref(db,'weeks/'+wk+'/predictions/'+k));await set(ref(db,'participants'),S.parts);renderPersonList();showToast('Silindi','success');});};
+window.savePersons=async function(){document.querySelectorAll('[id^="pn-"]').forEach((inp,i)=>{if(S.parts[i]!==undefined)S.parts[i]=inp.value.trim()||S.parts[i];});try{await set(ref(db,'participants'),S.parts);showToast('Kaydedildi ✅','success');}catch(e){showToast('Hata: '+e.message,'error');}};
+window.resetPerson=function(){
+  const wk=document.getElementById('rweeksel')?.value;const name=document.getElementById('rpersonsel')?.value;
+  if(!wk||!name){showToast('Hafta ve kişi seç!','error');return;}
+  confirmModal(name+' sıfırlansın mı?',(gw(wk)?.name||wk)+' haftası tahminleri silinecek.',async()=>{const k=n2k(name);if(k)await remove(ref(db,'weeks/'+wk+'/predictions/'+k));showToast(name+' sıfırlandı ✅','success');renderGrid();});
+};
+
+const wms=()=>(sel.home&&S.weeks[sel.home]?.matches)||[];
+const wpreds=n=>{const pk=n2k(n);return(sel.home&&pk&&S.weeks[sel.home]?.predictions?.[pk])||{};};
+const wallDone=n=>wms().every(m=>(wpreds(n)[m.id]?.size||0)>0);
+const dcCount=()=>Object.values(draft).filter(s=>s.size===2).length;
+
+function renderGrid(){
+  const g=document.getElementById('pgrid');if(!g)return;g.innerHTML='';
+  const ms=wms();
+  if(!ms.length){g.innerHTML='<div style="color:var(--muted);font-size:12px;padding:10px;background:var(--surface);border-radius:9px;text-align:center;">📅 Bu haftada henüz maç yok.<br><small>Admin panelinden maç ekleyin veya "Eski Veriyi Aktar" butonunu kullanın.</small></div>';return;}
+  S.parts.forEach(name=>{
+    const done=wallDone(name);const cnt=Object.keys(wpreds(name)).length;const partial=cnt>0&&!done;
+    const c=document.createElement('div');c.className='pcard'+(aUser===name?' active':'');
+    c.innerHTML=(done?'<div class="pchk">✓</div>':'')+'<div class="pav">'+name[0]+'</div><div class="pnm">'+name+'</div><div class="pst '+(done?'done':'')+'>'+(done?'✅ Tamam':partial?'⏳ Devam':'Tahmin yok')+'</div>';
+    c.onclick=()=>{
+      // If predictions complete and not admin, show read-only
+      if(done && !adminOK){
+        aUser=name;
+        draft={};const sv=wpreds(name);for(const id in sv)draft[id]=new Set(sv[id]);
+        renderGrid();renderPA();
+        setTimeout(()=>document.getElementById('parea').scrollIntoView({behavior:'smooth',block:'start'}),80);
+        return;
+      }
+      aUser=aUser===name?null:name;
+      if(aUser){draft={};const sv=wpreds(aUser);for(const id in sv)draft[id]=new Set(sv[id]);}
+      renderGrid();
+      if(aUser){renderPA();setTimeout(()=>document.getElementById('parea').scrollIntoView({behavior:'smooth',block:'start'}),80);}
+      else document.getElementById('parea').innerHTML='';
+    };
+    g.appendChild(c);
+  });
+}
+
+function renderPA(){
+  const area=document.getElementById('parea');if(!area||!aUser)return;
+  const name=aUser,ms=wms(),dc=dcCount(),done=Object.values(draft).filter(s=>s.size>0).length;
+  const isLocked=wallDone(name)&&!adminOK;
+  let rows='';
+  ms.forEach(m=>{
+    const s=draft[m.id]||new Set(),h1=s.has('MS1'),hX=s.has('X'),h2=s.has('MS2'),isD=s.size===2;
+    function bc(k,h){if(!h)return'';const mp={MS1:'1',X:'x',MS2:'2'};return isD?'dbl-'+mp[k]:'on-'+mp[k];}
+    const dis=isLocked?'pointer-events:none;opacity:.7;':'';
+    rows+='<div class="mrow '+(s.size===0?'':s.size===2?'doubled':'picked')+'">'
+      +'<div class="mnum">'+m.id+'</div>'
+      +'<div class="minf"><div class="mtms">'+m.home+' - '+m.away+'</div><div class="mdat">'+(m.date||'')+'</div></div>'
+      +'<div class="mpck" style="'+dis+'">'
+      +'<button class="pbtn '+bc('MS1',h1)+'" onclick="tp('+m.id+',\'MS1\')">MS1</button>'
+      +'<button class="pbtn '+bc('X',hX)+'" onclick="tp('+m.id+',\'X\')">X</button>'
+      +'<button class="pbtn '+bc('MS2',h2)+'" onclick="tp('+m.id+',\'MS2\')">MS2</button>'
+      +'</div>'+(isD?'<div class="dcpill">ÇŞ</div>':'')+'</div>';
+  });
+  const lockMsg=isLocked?'<div style="background:rgba(224,85,85,.08);border:1px solid rgba(224,85,85,.25);border-radius:8px;padding:10px 14px;margin-bottom:10px;font-size:12px;color:var(--red);text-align:center;">🔒 Tahminler kilitli — kayıt tamamlanmış. Değişiklik için admin ile iletişime geçin.</div>':'';
+  area.innerHTML='<div class="ptop"><div class="pwho"><div class="ppav">'+name[0]+'</div><div class="pnm2">'+name+(isLocked?' 🔒':'')+'</div></div>'
+    +'<div class="pacts"><div class="dcctr">ÇŞ<br><strong>'+dc+'</strong>/3</div>'
+    +'<button class="pdfbtn" onclick="printPred(\''+name+'\')">🖨️ PDF</button></div></div>'
+    +lockMsg
+    +(isLocked?'':'<div class="ibox"><strong>1 kutu</strong>=Normal(2p) · <strong>2 kutu</strong>=ÇŞ(1p) · Max 3 maça · MS1+X=<strong>1X</strong> · X+MS2=<strong>X2</strong> · MS1+MS2=<strong>12</strong></div>')
+    +rows
+    +'<div style="color:var(--muted);font-size:11px;text-align:center;margin-top:8px;">'+done+'/'+ms.length+' maç · ÇŞ: '+dc+'/3</div>'
+    +(isLocked?'':'<button class="savebtn" id="spbtn" onclick="savePreds()">💾 '+name+' TAHMİNLERİNİ KAYDET</button>');
+}
+
+window.tp=function(mid,val){
+  if(!aUser)return;
+  // Block changes if predictions are complete and user is not admin
+  if(wallDone(aUser)&&!adminOK){showToast('🔒 Tahminler kilitli!','error');return;}
+  const s=draft[mid]||new Set();
+  if(s.has(val))s.delete(val);
+  else if(s.size===0)s.add(val);
+  else if(s.size===1){if(dcCount()>=3){showToast('Max 3 çifte şans!','error');return;}s.add(val);}
+  else{showToast('Bir maçta max 2 seçim!','error');return;}
+  if(s.size===0)delete draft[mid];else draft[mid]=s;
+  renderPA();
+};
+
+window.savePreds=async function(){
+  if(wallDone(aUser)&&!adminOK){showToast('🔒 Tahminler zaten kilitli!','error');return;}
+  const ms=wms();const missing=ms.filter(m=>!draft[m.id]||draft[m.id].size===0);
+  if(missing.length>0){showToast(missing.length+' maç seçilmedi!','error');return;}
+  const btn=document.getElementById('spbtn');if(btn){btn.disabled=true;btn.textContent='Kaydediliyor...';}
+  try{
+    const ser={};for(const id in draft)ser[id]=[...draft[id]];
+    await set(ref(db,'weeks/'+sel.home+'/predictions/'+n2k(aUser)),ser);
+    showToast(aUser+' kaydedildi ✅','success');
+    aUser=null;draft={};renderGrid();document.getElementById('parea').innerHTML='';
+  }catch(e){showToast('Kayıt hatası: '+e.message,'error');if(btn){btn.disabled=false;btn.textContent='💾 TAHMİNLERİ KAYDET';}}
+};
+
+const pl=s=>{if(!s||s.size===0)return'—';const a=[...s].sort();if(a.length===1)return a[0];if(a.includes('MS1')&&a.includes('X'))return'1X⚡';if(a.includes('X')&&a.includes('MS2'))return'X2⚡';if(a.includes('MS1')&&a.includes('MS2'))return'12⚡';return a.join('+');};
+
+window.printPred=function(name){
+  const wk=sel.home;const w=gw(wk);if(!w)return;
+  const ms=w.matches||[];const preds=name===aUser?draft:(S.weeks[wk]?.predictions?.[n2k(name)]||{});
+  const results=w.results||{};const now=new Date().toLocaleDateString('tr-TR')+' '+new Date().toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'});
+  let rows='';
+  ms.forEach((m,i)=>{
+    const s=preds[m.id]||new Set();const lbl=pl(s);const isD=s.size===2;
+    const hit=results[m.id]&&s.has(results[m.id]);const miss=results[m.id]&&!s.has(results[m.id]);
+    let bg='transparent',col='#555';
+    if(s.has('MS1')&&!isD){bg='#dce8ff';col='#2255bb';}else if(s.has('X')&&!isD){bg='#eeeef8';col='#555580';}else if(s.has('MS2')&&!isD){bg='#ffe0e0';col='#bb2222';}else if(isD){bg='#fff8dc';col='#886600';}
+    rows+='<tr style="background:'+(i%2===0?'#fff':'#f9f9fb')+'">'
+      +'<td style="padding:6px 7px;border-bottom:1px solid #eee;color:#999;text-align:center;font-weight:700">'+m.id+'</td>'
+      +'<td style="padding:6px 7px;border-bottom:1px solid #eee;font-weight:600">'+m.home+' - '+m.away+'</td>'
+      +'<td style="padding:6px 7px;border-bottom:1px solid #eee;text-align:center;color:#999">'+(m.date||'')+'</td>'
+      +'<td style="padding:6px 7px;border-bottom:1px solid #eee;text-align:center">'+(s.size>0?'<span style="background:'+bg+';color:'+col+';padding:1px 7px;border-radius:3px;font-size:11px;font-weight:700">'+lbl+'</span>':'—')+'</td>'
+      +'<td style="padding:6px 7px;border-bottom:1px solid #eee;text-align:center">'+(results[m.id]?'<b>'+results[m.id]+'</b>':'?')+'</td>'
+      +'<td style="padding:6px 7px;border-bottom:1px solid #eee;text-align:center;font-size:13px">'+(hit?'✅':miss?'❌':'')+'</td></tr>';
+  });
+  const total=Object.values(preds).filter(s=>s&&s.size>0).length;const dc=Object.values(preds).filter(s=>s&&s.size===2).length;
+  const win=window.open('','_blank','width=800,height=900');
+  win.document.write('<!DOCTYPE html><html lang="tr"><head><meta charset="UTF-8"><title>'+name+'</title><style>*{margin:0;padding:0;box-sizing:border-box;}body{font-family:Arial,sans-serif;}@page{margin:13mm;size:A4;}@media print{.np{display:none!important;}}</style></head><body>'
+    +'<div style="background:#0a0a0f;color:#f0c040;padding:14px 18px;display:flex;justify-content:space-between;align-items:center;"><div><div style="font-size:19px;font-weight:900;letter-spacing:2px">SPOR TOTO YARIŞMASI</div><div style="color:#e8e8f0;font-size:11px;margin-top:2px">'+name+' · '+(w.name||wk)+'</div></div><div style="color:#7070a0;font-size:10px">'+now+'</div></div>'
+    +'<table style="width:100%;border-collapse:collapse;font-size:12px"><thead><tr style="background:#1c1c28;color:#7070a0"><th style="padding:6px 7px;text-align:center">#</th><th style="padding:6px 7px;text-align:left">MAÇ</th><th style="padding:6px 7px;text-align:center">TARİH</th><th style="padding:6px 7px;text-align:center">TAHMİN</th><th style="padding:6px 7px;text-align:center">SONUÇ</th><th style="padding:6px 7px;text-align:center">DURUM</th></tr></thead><tbody>'+rows+'</tbody></table>'
+    +'<div style="background:#f5f5fa;border:1px solid #ddd;border-radius:5px;padding:11px 15px;margin:12px;display:flex;gap:20px"><div><div style="font-size:9px;color:#999">TOPLAM</div><div style="font-size:17px;font-weight:900">'+total+'/'+ms.length+'</div></div><div><div style="font-size:9px;color:#999">ÇŞ</div><div style="font-size:17px;font-weight:900;color:#886600">'+dc+'/3</div></div><div style="margin-left:auto"><div style="font-size:9px;color:#999">MAX PUAN</div><div style="font-size:17px;font-weight:900;color:#c47a00">'+((total-dc)*2+dc)+'</div></div></div>'
+    +'<div class="np" style="text-align:center;padding:12px"><button onclick="window.print()" style="background:#0a0a0f;color:#f0c040;border:none;padding:8px 22px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer">🖨️ Yazdır / PDF</button></div>'
+    +'<'+'script>setTimeout(()=>window.print(),400);<'+'/script></body></html>');
+  win.document.close();
+};
+
+let localRes={};
+function renderRP(){
+  const l=document.getElementById('rlist');if(!l)return;
+  const w=sel.results&&S.weeks[sel.results];
+  // Initialize localRes only once when switching week
+  if(!l.dataset.wkLoaded||l.dataset.wkLoaded!==sel.results){
+    localRes=w?{...w.results}:{};
+    l.dataset.wkLoaded=sel.results||'';
+  }
+  l.innerHTML='';
+  if(!w||!w.matches||!w.matches.length){l.innerHTML='<div style="color:var(--muted);font-size:12px;padding:8px">Bu haftada maç yok.</div>';return;}
+  w.matches.forEach(m=>{
+    const cur=localRes[m.id]||'';
+    const d=document.createElement('div');d.className='rrow';
+    const num=document.createElement('div');num.className='mnum';num.textContent=m.id;d.appendChild(num);
+    const info=document.createElement('div');info.className='minf';
+    const tms=document.createElement('div');tms.className='mtms';tms.textContent=m.home+' - '+m.away;
+    const dat=document.createElement('div');dat.className='mdat';dat.textContent=m.date||'';
+    info.appendChild(tms);info.appendChild(dat);d.appendChild(info);
+    const btnBox=document.createElement('div');btnBox.style.cssText='display:flex;gap:3px;flex-shrink:0';
+    ['MS1','X','MS2'].forEach(val=>{
+      const b=document.createElement('button');
+      b.className='rbtn'+(cur===val?' active':'');
+      b.textContent=val;
+      b.type='button';
+      b.onclick=function(ev){
+        ev.preventDefault();ev.stopPropagation();
+        handleResClick(m.id,val);
+      };
+      btnBox.appendChild(b);
+    });
+    d.appendChild(btnBox);
+    l.appendChild(d);
+  });
+}
+function handleResClick(id,val){
+  if(localRes[id]===val)delete localRes[id];else localRes[id]=val;
+  renderRP();renderSum();
+}
+window.saveResults=async function(){try{await set(ref(db,'weeks/'+sel.results+'/results'),localRes);showToast('Kaydedildi ✅','success');renderSum();}catch(e){showToast('Hata: '+e.message,'error');}};
+
+function cws(wk,name){const w=gw(wk);if(!w)return{pts:0,correct:0,dc:0,wrong:0,pend:0};const pk=n2k(name);const p=w.predictions?.[pk]||{};const res=w.results||{};let pts=0,correct=0,dc=0,wrong=0,pend=0;(w.matches||[]).forEach(m=>{const s=p[m.id]||new Set();const r=res[m.id];if(!s.size||!r){pend++;return;}const hit=s.has(r);if(s.size===2){if(hit){dc++;pts+=1;}else wrong++;}else{if(hit){correct++;pts+=2;}else wrong++;}});return{pts,correct,dc,wrong,pend};}
+function cts(name){let pts=0,correct=0,dc=0,wrong=0,pend=0;wlist().forEach(([k])=>{const s=cws(k,name);pts+=s.pts;correct+=s.correct;dc+=s.dc;wrong+=s.wrong;pend+=s.pend;});return{pts,correct,dc,wrong,pend};}
+
+function renderSum(){
+  const box=document.getElementById('rsum'),tbl=document.getElementById('rstbl');if(!box||!tbl)return;
+  const w=S.weeks[sel.results];if(!w){box.style.display='none';return;}
+  const hasPreds=S.parts.some(n=>Object.keys(w.predictions?.[n2k(n)]||{}).length>0);
+  if(!hasPreds){box.style.display='none';return;}
+  box.style.display='block';const res=w.results||{};
+  let h='<thead><tr><th class="mth" style="padding:6px 8px">MAÇ</th><th style="padding:6px 5px;width:44px">SONUÇ</th>'+S.parts.map(n=>'<th style="padding:6px 5px;min-width:60px">'+n.split(' ')[0]+'</th>').join('')+'</tr></thead><tbody>';
+  (w.matches||[]).forEach((m,i)=>{
+    const r=res[m.id];
+    h+='<tr style="'+(i%2===0?'':'background:rgba(255,255,255,.02)')+'"><td class="mtd" style="padding:5px 8px;font-size:10px">'+m.id+'. '+m.home.split(' ')[0]+' - '+m.away.split(' ')[0]+'</td>'
+      +'<td style="padding:5px;text-align:center">'+(r?'<span class="rchip">'+r+'</span>':'<span class="rchip empty">?</span>')+'</td>'
+      +S.parts.map(name=>{const pk=n2k(name);const s=w.predictions?.[pk]?.[m.id]||new Set();const lbl=pl(s);if(!s.size)return'<td style="padding:5px;text-align:center;color:var(--muted)">—</td>';const isD=s.size===2;let cls=isD?'cdc':s.has('MS1')?'c1':s.has('X')?'cx':'c2';let st='';if(r){cls=s.has(r)?'cok':'cno';st=s.has(r)?'':'background:rgba(224,85,85,.1);color:var(--red);border:1px solid rgba(224,85,85,.25);';}return'<td style="padding:5px;text-align:center"><span class="chip '+cls+'" style="'+st+'">'+lbl+'</span></td>';}).join('')+'</tr>';
+  });
+  const sc=S.parts.map(n=>({name:n,...cws(sel.results,n)}));
+  h+='<tr style="background:rgba(240,192,64,.05);border-top:2px solid rgba(240,192,64,.2)"><td class="mtd" style="padding:6px 8px;font-family:\'Bebas Neue\';font-size:12px;color:var(--accent)">BU HAFTA</td><td></td>'+sc.map(s=>'<td style="padding:6px 5px;text-align:center"><span class="schip">'+s.pts+'</span></td>').join('')+'</tr>'
+    +'<tr><td class="mtd" style="padding:4px 8px;font-size:9px;color:var(--muted)">D/ÇŞ/Y</td><td></td>'+sc.map(s=>'<td style="padding:4px;text-align:center;font-size:9px"><span style="color:var(--green)">'+s.correct+'✓</span> <span style="color:var(--accent)">'+s.dc+'⚡</span> <span style="color:var(--red)">'+s.wrong+'✗</span></td>').join('')+'</tr>';
+  // Cumulative totals - SEASON long
+  const totals=S.parts.map(n=>({name:n,...cts(n)}));
+  const ranked=[...totals].sort((a,b)=>b.pts-a.pts||b.correct-a.correct);
+  const rankOf={}; ranked.forEach((t,i)=>rankOf[t.name]=i+1);
+  h+='<tr style="background:rgba(62,207,142,.06);border-top:2px solid rgba(62,207,142,.25)"><td class="mtd" style="padding:6px 8px;font-family:\'Bebas Neue\';font-size:12px;color:var(--green)">TOPLAM</td><td></td>'+S.parts.map(n=>{const t=totals.find(x=>x.name===n);return '<td style="padding:6px 5px;text-align:center"><span style="font-family:\'Bebas Neue\';font-size:16px;color:var(--green)">'+t.pts+'</span></td>';}).join('')+'</tr>'
+    +'<tr style="background:rgba(62,207,142,.02)"><td class="mtd" style="padding:5px 8px;font-size:10px;color:var(--muted)">GENEL SIRA</td><td></td>'+S.parts.map(n=>{const r=rankOf[n];const m=['🥇','🥈','🥉'];const icon=m[r-1]||'';return '<td style="padding:5px;text-align:center;font-size:13px;font-weight:800;color:'+(r<=3?'var(--accent)':'var(--muted)')+'">'+icon+' #'+r+'</td>';}).join('')+'</tr>'
+    +'</tbody>';
+  tbl.innerHTML=h;
+}
+
+window.printSum=function(){
+  const w=S.weeks[sel.results];if(!w)return;
+  const now=new Date().toLocaleDateString('tr-TR');
+  const sc=S.parts.map(n=>({name:n,...cws(sel.results,n)})).sort((a,b)=>b.pts-a.pts);
+  let mr='';
+  (w.matches||[]).forEach((m,i)=>{
+    const r=(w.results||{})[m.id];
+    mr+='<tr style="background:'+(i%2===0?'#fff':'#f9f9fb')+'"><td style="padding:5px 6px;border-bottom:1px solid #eee;font-size:11px;font-weight:600">'+m.id+'. '+m.home+' - '+m.away+'</td><td style="padding:5px 6px;border-bottom:1px solid #eee;text-align:center;font-weight:800;color:'+(r?'#886600':'#ccc')+'">'+(r||'?')+'</td>'
+      +S.parts.map(name=>{const pk=n2k(name);const s=w.predictions?.[pk]?.[m.id]||new Set();const lbl=pl(s);if(!s.size)return'<td style="padding:5px;border-bottom:1px solid #eee;text-align:center;color:#ccc">—</td>';const hit=r&&s.has(r),miss=r&&!s.has(r);return'<td style="padding:5px;border-bottom:1px solid #eee;text-align:center"><span style="background:'+(hit?'#e8fff5':miss?'#fff0f0':'#f0f4ff')+';color:'+(hit?'#1a7a4a':miss?'#aa2222':'#2244aa')+';padding:1px 5px;border-radius:3px;font-size:10px;font-weight:700">'+lbl+'</span></td>';}).join('')+'</tr>';
+  });
+  const win=window.open('','_blank','width=960,height=900');
+  win.document.write('<!DOCTYPE html><html lang="tr"><head><meta charset="UTF-8"><title>Analiz - '+(w.name||'')+'</title><style>*{margin:0;padding:0;box-sizing:border-box;}body{font-family:Arial,sans-serif;}@page{margin:9mm;size:A4 landscape;}@media print{.np{display:none!important;}}</style></head><body>'
+    +'<div style="background:#0a0a0f;color:#f0c040;padding:11px 16px;display:flex;justify-content:space-between;"><div style="font-size:17px;font-weight:900;letter-spacing:2px">SPOR TOTO — '+(w.name||'')+'</div><div style="color:#7070a0;font-size:10px">'+now+'</div></div>'
+    +'<div style="display:flex;background:#1c1c28">'+sc.map((s,i)=>{const m=['🥇','🥈','🥉'];return'<div style="flex:1;text-align:center;padding:7px;border-right:1px solid #2a2a3d"><div style="font-size:14px">'+(m[i]||'')+'</div><div style="color:#f0c040;font-weight:900;font-size:11px">'+s.name+'</div><div style="color:#fff;font-size:18px;font-weight:900">'+s.pts+'</div><div style="color:#7070a0;font-size:9px">'+s.correct+'✓ '+s.dc+'⚡ '+s.wrong+'✗</div></div>';}).join('')+'</div>'
+    +'<table style="width:100%;border-collapse:collapse;font-size:10px"><thead><tr style="background:#e8e8f0"><th style="padding:5px 6px;text-align:left">MAÇ</th><th style="padding:5px 6px;text-align:center">SONUÇ</th>'+S.parts.map(n=>'<th style="padding:5px 6px;text-align:center">'+n+'</th>').join('')+'</tr></thead><tbody>'+mr+'<tr style="background:#f0f0f8;font-weight:900"><td style="padding:6px">PUAN</td><td></td>'+sc.map(s=>'<td style="padding:6px;text-align:center;font-size:15px;font-weight:900;color:#886600">'+s.pts+'</td>').join('')+'</tr></tbody></table>'
+    +'<div class="np" style="text-align:center;padding:11px"><button onclick="window.print()" style="background:#0a0a0f;color:#f0c040;border:none;padding:7px 20px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer">🖨️ Yazdır / PDF</button></div>'
+    +'<'+'script>setTimeout(()=>window.print(),400);<'+'/script></body></html>');
+  win.document.close();
+};
+
+function renderBoard(){
+  const wk=sel.board;const w=gw(wk);const lb=document.getElementById('lbbody'),dg=document.getElementById('dgrid');if(!lb||!dg)return;
+  if(!w){lb.innerHTML='<tr><td colspan="7" style="color:var(--muted);padding:12px">Hafta seç.</td></tr>';dg.innerHTML='';return;}
+  const sc=S.parts.map(n=>({name:n,...cws(wk,n)})).sort((a,b)=>b.pts-a.pts||b.correct-a.correct);
+  lb.innerHTML='';
+  sc.forEach((s,i)=>{const rc=['r1','r2','r3','rx','rx','rx','rx','rx'][i]||'rx';const tr=document.createElement('tr');tr.innerHTML='<td><span class="rball '+rc+'">'+(i+1)+'</span></td><td style="font-weight:700">'+s.name+'</td><td style="font-family:\'Bebas Neue\';font-size:19px;color:var(--accent)">'+s.pts+'</td><td style="color:var(--green)">'+s.correct+'✓</td><td style="color:var(--accent)">'+s.dc+'⚡</td><td style="color:var(--red)">'+s.wrong+'✗</td><td style="color:var(--muted)">'+s.pend+'⏳</td>';lb.appendChild(tr);});
+  dg.innerHTML='';
+  (w.matches||[]).forEach(m=>{
+    const res=(w.results||{})[m.id];const d=document.createElement('div');d.className='drow';let ph='';
+    S.parts.forEach(name=>{const pk=n2k(name);const s=w.predictions?.[pk]?.[m.id]||new Set();const lbl=pl(s);if(!s.size){ph+='<div class="dpick wait"><span style="opacity:.5">'+name+'</span> —</div>';return;}let cls='wait';if(res)cls=s.has(res)?'ok':'no';ph+='<div class="dpick '+cls+'"><span style="opacity:.6;margin-right:2px">'+name+'</span>'+lbl+'</div>';});
+    d.innerHTML='<div class="dhead"><div class="dmatch">'+m.id+'. '+m.home+' - '+m.away+' <small style="color:var(--muted)">'+(m.date||'')+'</small></div><div class="dres">'+(res||'?')+'</div></div><div class="dpicks">'+ph+'</div>';
+    dg.appendChild(d);
+  });
+}
+
+function renderTrend(){
+  const wl=wlist();const totals=S.parts.map(n=>({name:n,...cts(n)})).sort((a,b)=>b.pts-a.pts);const maxP=Math.max(...totals.map(t=>t.pts),1);
+  const ov=document.getElementById('tov');
+  if(ov){let h='<table class="ttbl"><thead><tr><th class="nth">İSİM</th><th>TOPLAM</th><th>DOĞRU</th><th>ÇŞ</th><th>YANLIŞ</th><th>İSABET%</th></tr></thead><tbody>';totals.forEach((t,i)=>{const rc=['r1','r2','r3','rx','rx','rx','rx','rx'][i]||'rx';const tot=t.correct+t.dc+t.wrong;const pct=tot>0?Math.round(((t.correct+t.dc)/tot)*100):0;h+='<tr><td class="ntd"><span class="rball '+rc+'" style="margin-right:6px">'+(i+1)+'</span>'+t.name+'</td><td style="font-family:\'Bebas Neue\';font-size:19px;color:var(--accent)">'+t.pts+'</td><td style="color:var(--green)">'+t.correct+'✓</td><td style="color:var(--accent)">'+t.dc+'⚡</td><td style="color:var(--red)">'+t.wrong+'✗</td><td><div style="background:var(--surface2);border-radius:3px;overflow:hidden;height:14px;min-width:70px"><div style="background:'+(CLR[i]||'#5b8dee')+';height:100%;width:'+pct+'%;display:flex;align-items:center;padding:0 4px;font-size:8px;font-weight:700;color:#000">'+pct+'%</div></div></td></tr>';});h+='</tbody></table>';ov.innerHTML=h;}
+  const bars=document.getElementById('tbars');
+  if(bars){let h='';totals.forEach((t,i)=>{const pct=Math.round((t.pts/maxP)*100);h+='<div class="brow"><div class="bnm">'+t.name+'</div><div class="btrk"><div class="bfil" style="width:'+pct+'%;background:'+(CLR[i]||'#5b8dee')+'">'+(t.pts>0?t.pts+'p':'')+'</div></div><div class="bpts">'+t.pts+'</div></div>';});bars.innerHTML=h||'<div style="color:var(--muted);font-size:11px">Henüz veri yok.</div>';}
+  const wt=document.getElementById('twk');
+  if(wt){if(!wl.length){wt.innerHTML='<tr><td style="color:var(--muted);padding:12px">Henüz hafta yok.</td></tr>';return;}let h='<thead><tr><th class="nth">İSİM</th>'+wl.map(([k,w])=>'<th style="max-width:75px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+(w.name||k)+'">'+(w.name||k).split('—')[0].trim()+'</th>').join('')+'<th style="color:var(--accent)">TOPLAM</th></tr></thead><tbody>';const ps=[...S.parts].sort((a,b)=>cts(b).pts-cts(a).pts);ps.forEach(name=>{const wp=wl.map(([k])=>cws(k,name).pts);const tot=wp.reduce((a,b)=>a+b,0);const mx=Math.max(...wp,1);h+='<tr><td class="ntd">'+name+'</td>'+wp.map(p=>{const cls=p>=mx*.75?'wshi':p>=mx*.4?'wsmi':p>0?'wslo':'wsno';return'<td><span class="ws '+cls+'">'+(p>0?p:'—')+'</span></td>';}).join('')+'<td><span style="font-family:\'Bebas Neue\';font-size:17px;color:var(--accent)">'+tot+'</span></td></tr>';});h+='</tbody>';wt.innerHTML=h;}
+  const acc=document.getElementById('tacc');
+  if(acc){let h='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:9px">';S.parts.forEach((name,i)=>{const t=cts(name);const tot=t.correct+t.dc+t.wrong;const pct=tot>0?Math.round(((t.correct+t.dc)/tot)*100):0;const wp=wlist().map(([k])=>cws(k,name).pts);const mxw=Math.max(...wp,1);const spark=wp.map((p,si)=>{const h2=Math.max(3,Math.round((p/mxw)*20));return'<div class="sb" style="height:'+h2+'px;background:'+(CLR[si%CLR.length]||'#5b8dee')+';opacity:'+(p>0?1:.2)+'"></div>';}).join('');h+='<div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px"><div style="font-weight:700;font-size:11px;margin-bottom:5px">'+name+'</div><div style="font-size:22px;font-weight:900;font-family:\'Bebas Neue\';color:'+(pct>=60?'var(--green)':pct>=40?'var(--accent)':'var(--red)')+'">'+pct+'%</div><div style="font-size:9px;color:var(--muted);margin-bottom:6px">'+t.correct+'✓ '+t.dc+'⚡ '+t.wrong+'✗</div><div class="sprk">'+spark+'</div></div>';});h+='</div>';acc.innerHTML=h;}
+}
+
+let _cb=null;
+function confirmModal(title,msg,cb){document.getElementById('mtitle').textContent=title;document.getElementById('mmsg').textContent=msg;_cb=cb;document.getElementById('modal').style.display='flex';document.getElementById('mok').onclick=()=>{closeModal();if(_cb)_cb();};}
+window.closeModal=function(){document.getElementById('modal').style.display='none';};
+function showToast(msg,type='success'){const t=document.getElementById('toast');t.textContent=msg;t.className='toast show '+type;setTimeout(()=>t.classList.remove('show'),2600);}
+
+renderGrid();
+</script>
+</body>
+</html>
